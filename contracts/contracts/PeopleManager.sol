@@ -11,9 +11,14 @@ contract PeopleManager {
     mapping(address => Person) private people;
     address[] private peopleList;
 
+    mapping(address => bool) private isAdded;
+
     function addOrUpdatePerson(string memory _name, uint _age) external {
+        if (!isAdded[msg.sender]) {
+            peopleList.push(msg.sender);
+            isAdded[msg.sender] = true;
+        }
         people[msg.sender] = Person(_name, _age);
-        peopleList.push(msg.sender);
     }
 
     function getMyPerson() external view returns (string memory, uint) {

@@ -4,7 +4,7 @@ import { ethers } from "ethers";
 import { useEthers } from "./useEthers";
 import PeopleAbi from "../abis/People.json";
 
-const CONTRACT_ADDRESS = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
+const CONTRACT_ADDRESS = "0x6E30Dbe7ce5FA6e695C644482810f8752571806A";
 
 export function useContract() {
   const { signer, address } = useEthers();
@@ -33,38 +33,26 @@ export function useContract() {
 
   const getMyPerson = async () => {
     if (!contract || !address) return;
-
+  
     setLoading(true);
     try {
-      const [name, age] = await contract.getMyPerson();
-      setPerson({ name, age });
+      const [name, ageBN] = await contract.getMyPerson();
+      setPerson({ name, age: Number(ageBN) }); 
     } catch (err) {
       console.error("Error fetching my person data:", err);
     } finally {
       setLoading(false);
     }
   };
-
-  const getAllPeople = async () => {
-    if (!contract) return;
-
-    setLoading(true);
-    try {
-      const people = await contract.getAllPeople();
-      setAllPeople(people);
-    } catch (err) {
-      console.error("Error fetching all people:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
+  
   const getPerson = async (addr: string) => {
     if (!contract) return;
-
+  
     setLoading(true);
     try {
-      const [name, age] = await contract.getPerson(addr);
+      const [name, ageBN] = await contract.getPerson(addr);
+      const age = ageBN.toNumber?.() ?? Number(ageBN); // fallback aman
+      console.log("Fetched person by address:", { name, age });
       return { name, age };
     } catch (err) {
       console.error("Error fetching person data:", err);
@@ -72,6 +60,23 @@ export function useContract() {
       setLoading(false);
     }
   };
+   
+
+  const getAllPeople = async () => {
+    if (!contract) return;
+  
+    setLoading(true);
+    try {
+      const result: string[] = await contract.getAllPeople();
+      console.log("All people addresses:", result);
+      setAllPeople(result);
+    } catch (err) {
+      console.error("Error fetching all people:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+  
 
   const deletePerson = async () => {
     if (!contract) return;
